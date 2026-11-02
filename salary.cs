@@ -1,5 +1,5 @@
 #:package Microsoft.ML@5.0.1
-#:property PublishAoT=false
+#:property PublishAot=false
 
 using Microsoft.ML;
 using Microsoft.ML.Data;
