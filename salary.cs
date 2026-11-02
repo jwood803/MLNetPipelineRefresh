@@ -30,7 +30,7 @@ context.Model.Save(model, data.Schema, "salary-model.zip");
 // Predict
 var newData = new SalaryData
 {
-    YearsExperience = 1.1f
+    YearsExperience = 18f
 };
 
 var predictionFunc = context.Model.CreatePredictionEngine<SalaryData, SalaryPrediction>(model);
