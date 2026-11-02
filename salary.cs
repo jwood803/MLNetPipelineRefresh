@@ -42,11 +42,11 @@ Console.WriteLine($"Prediction - {prediction.PredictedSalary}");
 public class SalaryData
 {
     [LoadColumn(0)]
-    public float YearsExperience;
+    public float YearsExperience { get; set; }
 
     [LoadColumn(1)]
     [ColumnName("Label")]
-    public float Salary;
+    public float Salary { get; set; }
 }
 
 public class SalaryPrediction
