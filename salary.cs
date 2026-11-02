@@ -1,9 +1,8 @@
-#:include SalaryData.cs
-#:include SalaryPrediction.cs
 #:package Microsoft.ML@5.0.1
 #:property PublishAoT=false
 
 using Microsoft.ML;
+using Microsoft.ML.Data;
 
 var context = new MLContext(seed: 42);
 
@@ -15,14 +14,13 @@ var splitData = context.Data.TrainTestSplit(data, testFraction: 0.2);
 
 // Build model
 var pipeline = context.Transforms.Concatenate("Features", nameof(SalaryData.YearsExperience))
-    .Append(context.Regression.Trainers.Sdca(labelColumnName: nameof(SalaryData.Salary)));
+    .Append(context.Regression.Trainers.Sdca());
 
 var model = pipeline.Fit(splitData.TrainSet);
 
 var testPredictions = model.Transform(splitData.TestSet);
 
-// Run this with test set to show that the data needs to be transformed first and labelcolumnname is needed as it defaults to "Label"
-var metrics = context.Regression.Evaluate(testPredictions, labelColumnName: nameof(SalaryData.Salary));
+var metrics = context.Regression.Evaluate(testPredictions);
 
 Console.WriteLine($"R^2 - {metrics.RSquared}");
 Console.WriteLine($"MAE - {metrics.MeanAbsoluteError}");
@@ -32,7 +30,7 @@ context.Model.Save(model, data.Schema, "salary-model.zip");
 // Predict
 var newData = new SalaryData
 {
-    YearsExperience = 18f
+    YearsExperience = 1.1f
 };
 
 var predictionFunc = context.Model.CreatePredictionEngine<SalaryData, SalaryPrediction>(model);
@@ -40,3 +38,19 @@ var predictionFunc = context.Model.CreatePredictionEngine<SalaryData, SalaryPred
 var prediction = predictionFunc.Predict(newData);
 
 Console.WriteLine($"Prediction - {prediction.PredictedSalary}");
+
+public class SalaryData
+{
+    [LoadColumn(0)]
+    public float YearsExperience;
+
+    [LoadColumn(1)]
+    [ColumnName("Label")]
+    public float Salary;
+}
+
+public class SalaryPrediction
+{
+    [ColumnName("Score")]
+    public float PredictedSalary { get; set; }
+}
